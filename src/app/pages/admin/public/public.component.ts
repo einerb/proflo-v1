@@ -14,6 +14,7 @@ import {
   ProjectService,
   ScheduleService,
 } from 'src/app/services/';
+import { OccupationService } from 'src/app/services/occupation.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -36,6 +37,7 @@ export class PublicComponent implements OnInit {
     private readonly projectService: ProjectService,
     private readonly employeeService: EmployeeService,
     private readonly scheduleService: ScheduleService,
+    private readonly occupationService: OccupationService,
     private formBuilder: FormBuilder
   ) {
     this.createForm();
@@ -181,9 +183,9 @@ export class PublicComponent implements OnInit {
   }
 
   private getOccupations() {
-    this.employeeService.getOccupation().subscribe((res) => {
+    this.occupationService.getAll().subscribe((res: any) => {
       this.occupations = res.data?.sort(
-        (o1: any, o2: any) => (o2.occupation.toLowerCase() < o1.occupation.toLowerCase()) ? 1 : (o2.occupation.toLowerCase() > o1.occupation.toLowerCase()) ? -1 : 0);
+        (o1: any, o2: any) => (o2.name.toLowerCase() < o1.name.toLowerCase()) ? 1 : (o2.name.toLowerCase() > o1.name.toLowerCase()) ? -1 : 0);
     });
   }
 }

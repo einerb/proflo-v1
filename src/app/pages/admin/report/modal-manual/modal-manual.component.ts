@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 
 import { EmployeeService, GlobalService } from 'src/app/services';
+import { OccupationService } from 'src/app/services/occupation.service';
 
 @Component({
   selector: 'app-modal-manual',
@@ -11,17 +12,21 @@ import { EmployeeService, GlobalService } from 'src/app/services';
 })
 export class ModalManualComponent implements OnInit {
   public employeeForm!: FormGroup;
+  public occupations: any[] = [];
 
   constructor(
     private readonly globalService: GlobalService,
     private readonly employeeService: EmployeeService,
+    private readonly occupationService: OccupationService,
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<ModalManualComponent>
   ) {
     this.createForm();
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getOccupations();
+  }
 
   get f() {
     return this.employeeForm.controls;
@@ -66,5 +71,11 @@ export class ModalManualComponent implements OnInit {
       address: [''],
       phone: [''],
     });
+  }
+
+  private getOccupations() {
+    this.occupationService.getAll().subscribe((res: any) => {
+      this.occupations = res.data;      
+    })
   }
 }

@@ -48,10 +48,12 @@ export const Endpoint = {
       environment.apiHost +
       environment.apiVersion +
       `employee/${identification}` +
-      addPaginationWithDates(page, elements, start, end),
-    GETOCCUPATION: environment.apiHost + environment.apiVersion + 'project/occupations',
+      addPaginationWithDates(page, elements, start, end)
   },
   USER: {
     BASE: environment.apiHost + environment.apiVersion + 'user',
   },
+  OCCUPATION: {
+    ALL: environment.apiHost + environment.apiVersion + 'occupation'
+  }
 };

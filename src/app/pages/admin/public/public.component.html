@@ -11,7 +11,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Seleccione área</mat-label>
           <mat-select (selectionChange)="filterChange($event)">
-            <mat-option *ngFor="let area of occupations" value="{{area?.occupation}}">{{area?.occupation | titlecase}}</mat-option>
+            <mat-option *ngFor="let area of occupations" value="{{area?.name}}">{{area?.name | titlecase}}</mat-option>
           </mat-select>
         </mat-form-field>
         <label class="fw-bold">Operario</label>

@@ -49,12 +49,4 @@ export class EmployeeService {
       })
     );
   }
-
-  public getOccupation(): Observable<any> {
-    return this.globalService.get(Api.Endpoints.EMPLOYEE.GETOCCUPATION).pipe(
-      map((res) => {
-        return res;
-      })
-    );
-  }
 }
