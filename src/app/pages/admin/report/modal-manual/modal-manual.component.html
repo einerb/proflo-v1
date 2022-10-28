@@ -1,0 +1,107 @@
+<h2 mat-dialog-title>Registro Operario</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="employeeForm">
+    <label class="fw-bold"
+      >Identificación <span class="required-label">*</span></label
+    >
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        placeholder="Identificación *"
+        formControlName="identification"
+        type="text"
+      />
+      <mat-error
+        *ngIf="
+          f['identification'].errors && f['identification'].errors['required']
+        "
+        >La identificación es requerida</mat-error
+      >
+      <mat-error
+        *ngIf="
+          f['identification'].errors && f['identification'].errors['pattern']
+        "
+        >Longitud Mín. 7 y Máx. 10 dígitos</mat-error
+      >
+    </mat-form-field>
+    <label class="fw-bold">Nombres <span class="required-label">*</span></label>
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        placeholder="Nombres *"
+        formControlName="fullname"
+        type="text"
+      />
+      <mat-error
+        *ngIf="f['fullname'].errors && f['fullname'].errors['required']"
+        >El nombre es requerido</mat-error
+      >
+    </mat-form-field>
+
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <label class="fw-bold"
+          >Occupación <span class="required-label">*</span></label
+        >
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            placeholder="Occupación *"
+            formControlName="occupation"
+            type="text"
+          />
+          <mat-error
+            *ngIf="f['occupation'].errors && f['occupation'].errors['required']"
+            >La ocupación es requerida</mat-error
+          >
+        </mat-form-field>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <label class="fw-bold">Ciudad</label>
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            placeholder="Ciudad"
+            formControlName="city"
+            type="text"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-md-6">
+        <label class="fw-bold">Dirección</label>
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            placeholder="Dirección"
+            formControlName="address"
+            type="text"
+          />
+        </mat-form-field>
+      </div>
+      <div class="col-xs-12 col-md-6">
+        <label class="fw-bold">Teléfono</label>
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            placeholder="Teléfono"
+            formControlName="phone"
+            type="text"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="employeeForm.invalid"
+    (click)="onSave()"
+  >
+    Guardar
+  </button>
+</mat-dialog-actions>

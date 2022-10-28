@@ -1,0 +1,86 @@
+<div class="col-md-8 mx-auto card p-3 shadow p-3 mb-5 bg-body rounded">
+  <div class="card-body">
+    <h1 class="card-title fw-bold text-center">REPORTE INDIVIDUAL</h1>
+    <p class="text-center text-muted">
+      Fecha de registro: {{ dateRealized | titlecase }}
+    </p>
+    <hr />
+    <form [formGroup]="publicForm" class="mt-5">
+      <div class="mt-3">
+        <label class="fw-bold">Filtrar área</label>
+        <mat-form-field appearance="outline">
+          <mat-label>Seleccione área</mat-label>
+          <mat-select (selectionChange)="filterChange($event)">
+            <mat-option *ngFor="let area of occupations" value="{{area?.occupation}}">{{area?.occupation | titlecase}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <label class="fw-bold">Operario</label>
+        <mat-form-field appearance="outline">
+          <input matInput placeholder="Nombre Operario *" type="text" [formControl]="filterCC"
+            [matAutocomplete]="auto" />
+          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option?.fullname | titlecase">
+              {{ option.identification }} | {{ option.fullname | titlecase }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="!filterCC.value">El nombre es requerido</mat-error>
+        </mat-form-field>
+        <div class="row">
+          <div class="col-xs-12 col-md-9">
+            <label class="fw-bold">Jornada</label>
+            <mat-form-field appearance="outline">
+              <mat-label>Seleccione jornada</mat-label>
+              <mat-select formControlName="journey">
+                <mat-option value="M">Mañana</mat-option>
+                <mat-option value="T">Tarde</mat-option>
+                <mat-option value="N">Noche</mat-option>
+                <mat-option value="T2">Transversal</mat-option>
+              </mat-select>
+              <mat-error *ngIf="f['journey'].errors && f['journey'].errors['required']">La jornada es requerida
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-xs-12 col-md-3 p-4">
+            <button mat-raised-button color="primary" type="button" (click)="addSchedule()">
+              Agregar <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div formArrayName="schedule">
+          <div *ngFor="let item of g.controls; let i = index">
+            <div [formGroupName]="i">
+              <div class="row">
+                <div class="col-xs-12 col-md-5">
+                  <label class="fw-bold">Proyecto {{ i + 1 }}</label>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Seleccione proyecto</mat-label>
+                    <mat-select formControlName="projectId">
+                      <mat-option [value]="project.id" *ngFor="let project of projects">{{ project.name | titlecase }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="col-xs-12 col-md-5">
+                  <label class="fw-bold">Horas trabajadas</label>
+                  <mat-form-field appearance="outline">
+                    <input matInput placeholder="Horas trabajadas *" formControlName="hour" type="number" />
+                  </mat-form-field>
+                </div>
+                <div class="col-xs-12 col-md-2 p-4">
+                  <button mat-raised-button color="warn" type="button" *ngIf="i > 0" (click)="deleteSchedule(i)">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button mat-raised-button color="primary" [disabled]="filterCC.value === ''" (click)="onSave()">
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

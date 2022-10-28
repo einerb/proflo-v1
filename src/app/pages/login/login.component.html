@@ -1,0 +1,52 @@
+<div class="container pt-5">
+  <h1 class="text-center text-muted">INICIAR SESIÓN</h1>
+  <div class="row mt-5">
+    <form [formGroup]="loginForm" class="mt-5">
+      <div class="col-md-6 mx-auto mt-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Cédula <span class="text-danger"></span></mat-label>
+          <input
+            matInput
+            placeholder="Cédula *"
+            formControlName="identification"
+            type="number"
+          />
+        </mat-form-field>
+      </div>
+      <div class="col-md-6 mx-auto mt-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Contraseña <span class="text-danger"></span></mat-label>
+          <input
+            matInput
+            placeholder="Contraseña *"
+            type="password"
+            formControlName="password"
+          />
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
+
+  <div class="row mt-2">
+    <div class="col-md-4 mx-auto mt-2">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSubmit()"
+        style="width: 100%"
+      >
+        {{ loading ? "Iniciando..." : "Iniciar sesión" }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer
+  class="text-center mt-5 p-3"
+  style="position: absolute; bottom: 0; width: 100%"
+>
+  <i class="fa fa-copyright" aria-hidden="true"></i> {{ year }} Todos los
+  derechos reservados a su autor - <b>PROFLO LATAM V. 0.0.1</b>
+  <br />
+  <b>Developed by Dev Team</b>
+</footer>
