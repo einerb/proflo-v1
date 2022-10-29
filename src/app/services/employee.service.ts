@@ -49,4 +49,22 @@ export class EmployeeService {
       })
     );
   }
+
+  
+  public getAllEmployee(): Observable<any> {
+    return this.globalService.get(Api.Endpoints.EMPLOYEE.BASE).pipe(
+      map((res) => {
+        return res;
+      })
+    );
+  }
+
+
+  public delete(id: number): Observable<any> {
+    return this.globalService.delete(Api.Endpoints.EMPLOYEE.BASE+'/'+id).pipe(
+      map((res) => {
+        return res;
+      })
+    );
+  }
 }

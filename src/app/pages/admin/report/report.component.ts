@@ -23,6 +23,8 @@ import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatPaginator } from '@angular/material/paginator';
 import { ModalIndividualComponent } from './modal-individual/modal-individual.component';
 import { ModalProjectComponent } from './modal-project/modal-project.component';
+import { ModalDeleteProjectComponent } from './modal-delete-project/modal-delete-project.component';
+import { ModalDeleteEmployeeComponent } from './modal-delete-employee/modal-delete-employee.component';
 
 const ELEMENT_DATA: any[] = [];
 
@@ -182,6 +184,18 @@ export class ReportComponent implements OnInit {
 
   public openDialogProject() {
     const dialogRef = this.dialog.open(ModalProjectComponent);
+
+    dialogRef.afterClosed().subscribe();
+  }
+
+  public openDialogAllProject() {
+    const dialogRef = this.dialog.open(ModalDeleteProjectComponent);
+
+    dialogRef.afterClosed().subscribe();
+  }
+
+  public openDialogAllEmployee() {
+    const dialogRef = this.dialog.open(ModalDeleteEmployeeComponent);
 
     dialogRef.afterClosed().subscribe();
   }

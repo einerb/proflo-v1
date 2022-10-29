@@ -10,6 +10,8 @@ import { PublicComponent } from './public/public.component';
 import { ModalManualComponent } from './report/modal-manual/modal-manual.component';
 import { ModalIndividualComponent } from './report/modal-individual/modal-individual.component';
 import { ModalProjectComponent } from './report/modal-project/modal-project.component';
+import { ModalDeleteProjectComponent } from './report/modal-delete-project/modal-delete-project.component';
+import { ModalDeleteEmployeeComponent } from './report/modal-delete-employee/modal-delete-employee.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +21,8 @@ import { ModalProjectComponent } from './report/modal-project/modal-project.comp
     ModalManualComponent,
     ModalIndividualComponent,
     ModalProjectComponent,
+    ModalDeleteProjectComponent,
+    ModalDeleteEmployeeComponent
   ],
   imports: [CommonModule, AdminRoutingModule, ComponentsModule, MatTableModule],
 })

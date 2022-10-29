@@ -34,4 +34,12 @@ export class ProjectService {
       })
     );
   }
+
+  public delete(id: number): Observable<any> {
+    return this.globalService.delete(Api.Endpoints.PROJECT.BASE+'/'+id).pipe(
+      map((res) => {
+        return res;
+      })
+    );
+  }
 }

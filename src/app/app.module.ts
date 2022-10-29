@@ -13,7 +13,6 @@ import { LoginComponent } from './pages/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuthInterceptorService } from './services/interceptor/auth-interceptor.service';
 import { SearchPipe } from './services/pipe/search.pipe';
-import { ComponentsModule } from './components/components.module';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent, SearchPipe],
