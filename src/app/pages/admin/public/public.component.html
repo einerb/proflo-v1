@@ -48,17 +48,20 @@
         </div>
 
         <div formArrayName="schedule">
-          <div *ngFor="let item of g.controls; let i = index">
+          <div *ngFor="let item of g(); let i = index">
             <div [formGroupName]="i">
               <div class="row">
                 <div class="col-xs-12 col-md-5">
                   <label class="fw-bold">Proyecto {{ i + 1 }}</label>
                   <mat-form-field appearance="outline">
-                    <mat-label>Seleccione proyecto</mat-label>
-                    <mat-select formControlName="projectId">
-                      <mat-option [value]="project.id" *ngFor="let project of projects">{{ project.name | titlecase }}
+                    <input matInput placeholder="Proyecto *" type="text" [value]="filterProject" formControlName="projectId"
+                      [matAutocomplete]="auto" />
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" >
+                      <mat-option *ngFor="let option of filteredOptionsProject | async" [value]="option?.name | uppercase">
+                        {{ option.name | uppercase }}
                       </mat-option>
-                    </mat-select>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="!filterProject.value">El proyecto es requerido</mat-error>
                   </mat-form-field>
                 </div>
                 <div class="col-xs-12 col-md-5">

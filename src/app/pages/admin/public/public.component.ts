@@ -29,8 +29,11 @@ export class PublicComponent implements OnInit {
   public projects: any[] = [];
   public publicForm!: FormGroup;
   public filteredOptions?: Observable<any[]>;
+  public filteredOptionsProject?: Observable<any[]>;
   public filterCC = new FormControl({ value: '', disabled: true });
+  public filterProject = new FormControl();
   public scheduleArray: any[] = [];
+  public projectArray: any[] = [];
 
   constructor(
     private readonly globalService: GlobalService,
@@ -52,7 +55,10 @@ export class PublicComponent implements OnInit {
       map((value) => this._filter(value || ''))
     );
 
-    this.addSchedule();
+    this.filteredOptionsProject = this.filterProject.valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filterProject(value || ''))
+    );
 
     this.getProjects();
     this.getOccupations();
@@ -62,23 +68,21 @@ export class PublicComponent implements OnInit {
     return this.publicForm.controls;
   }
 
-  get g(): FormArray {
-    return this.publicForm.get('schedule') as FormArray;
+  g() {
+    return (<FormArray>this.publicForm.get('schedule')).controls;
   }
 
   public addSchedule() {
-    this.g.push(this.createSchedule());
-  }
-
-  public createSchedule(): FormGroup {
-    return this.formBuilder.group({
-      projectId: ['', [Validators.required]],
-      hour: ['', [Validators.required]],
-    });
+    (<FormArray>this.publicForm.get('schedule')).push(
+      new FormGroup({
+        projectId: new FormControl(null, Validators.required),
+        hour: new FormControl(null, Validators.required),
+      })
+    );
   }
 
   public deleteSchedule(i: number) {
-    this.g.removeAt(i);
+    (<FormArray>this.publicForm.get('schedule')).removeAt(i);
   }
 
   public filterChange(event: any) {
@@ -88,8 +92,7 @@ export class PublicComponent implements OnInit {
       map((value) => this._filter(value || ''))
     );
 
-    if (event)
-      this.filterCC.enable();
+    if (event) this.filterCC.enable();
 
     this.filterCC.setValue('');
 
@@ -100,52 +103,96 @@ export class PublicComponent implements OnInit {
     if (value.length !== '') {
       const removeAccents = (str: string) => {
         if (str.length > 0)
-          return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        else
-          return str;
-      }
-      let valueStr = removeAccents(value)
+          return str
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+        else return str;
+      };
+      let valueStr = removeAccents(value);
       return this.employees?.filter((option) =>
         removeAccents(option?.fullname).toLowerCase().includes(valueStr)
       );
     } else {
-      return this.employees = [];
+      return (this.employees = []);
     }
+  }
 
+  private _filterProject(value: any): any[] {
+    if (value.length !== '') {
+      const removeAccents = (str: string) => {
+        if (str.length > 0)
+          return str
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+        else return str;
+      };
+      let valueStr = removeAccents(value);
+      return this.projects?.filter((option) =>
+        removeAccents(option?.name).toLowerCase().includes(valueStr)
+      );
+    } else {
+      return (this.projects = []);
+    }
   }
 
   public onSave() {
     if (this.publicForm.invalid) {
       return;
     }
-    this.fillArray();
 
-    this.scheduleArray.forEach((element) => {
-      const data = {
-        hour: element.hour,
-        journey: element.journey,
-        projectId: element.projectId,
-        identification: element.identification,
-      };
+    let fullname = this.employees.filter(
+      (x) => x.fullname.toLowerCase() === this.filterCC.value.toLowerCase()
+    );
 
-      this.scheduleService.create(data).subscribe((res) => {
-        if (res.code > 1000) {
-          Swal.fire({
-            title: `Operación exitosa`,
-            text: res.message,
-            icon: 'success',
-            confirmButtonText: 'Ok',
-            allowOutsideClick: false,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              window.location.reload();
-            }
-          });
-        } else {
-          this.globalService.onMessage(res.code, res.error);
-        }
-      });
+    let totalHours = 0;
+    this.publicForm.value?.schedule.forEach((element: any) => {
+      totalHours += element.hour;
     });
+
+    if (totalHours >= 7.5 && totalHours <= 8.5) {
+      this.publicForm.value?.schedule.forEach((element: any) => {
+        let projectId = this.projects.filter(
+          (x) => x.name.toLowerCase() === element.projectId.toLowerCase()
+        );
+
+        const data = {
+          hour: element.hour,
+          projectId: projectId[0]?.id,
+          journey: this.publicForm.get('journey')!.value,
+          identification: fullname[0]?.identification
+            ? fullname[0]?.identification
+            : null,
+        };
+
+        this.scheduleService.create(data).subscribe((res) => {
+          if (res.code > 1000) {
+            Swal.fire({
+              title: `Operación exitosa`,
+              text: res.message,
+              icon: 'success',
+              confirmButtonText: 'Ok',
+              allowOutsideClick: false,
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.reload();
+              }
+            });
+          } else {
+            this.globalService.onMessage(res.code, res.error);
+          }
+        });
+      });
+    } else {
+      Swal.fire({
+        title: `Operación errónea`,
+        text: 'El registro total de horas no se encuentra en el rango permitido. Rango permitido de 7.5 a 8.5 horas!',
+        icon: 'error',
+        confirmButtonText: 'Ok',
+        allowOutsideClick: false,
+      });
+    }
   }
 
   private createForm() {
@@ -155,24 +202,15 @@ export class PublicComponent implements OnInit {
     });
   }
 
-  private fillArray() {
-    this.scheduleArray = [];
-    let fullname = this.employees.filter((x) => x.fullname.toLowerCase() === this.filterCC.value.toLowerCase())
-
-    this.g.value.forEach((schedule: any) => {
-      this.scheduleArray.push({
-        hour: schedule.hour,
-        journey: this.publicForm.get('journey')!.value,
-        projectId: schedule.projectId,
-        identification: fullname[0].identification,
-      });
-    });
-  }
-
   private getEmployees(occupation: string) {
     this.employeeService.get(occupation).subscribe((res) => {
-      this.employees = res.data?.sort(
-        (e1: any, e2: any) => (e2.fullname.toLowerCase() < e1.fullname.toLowerCase()) ? 1 : (e2.fullname.toLowerCase() > e1.fullname.toLowerCase()) ? -1 : 0);
+      this.employees = res.data?.sort((e1: any, e2: any) =>
+        e2.fullname.toLowerCase() < e1.fullname.toLowerCase()
+          ? 1
+          : e2.fullname.toLowerCase() > e1.fullname.toLowerCase()
+          ? -1
+          : 0
+      );
     });
   }
 
@@ -184,8 +222,13 @@ export class PublicComponent implements OnInit {
 
   private getOccupations() {
     this.occupationService.getAll().subscribe((res: any) => {
-      this.occupations = res.data?.sort(
-        (o1: any, o2: any) => (o2.name.toLowerCase() < o1.name.toLowerCase()) ? 1 : (o2.name.toLowerCase() > o1.name.toLowerCase()) ? -1 : 0);
+      this.occupations = res.data?.sort((o1: any, o2: any) =>
+        o2.name.toLowerCase() < o1.name.toLowerCase()
+          ? 1
+          : o2.name.toLowerCase() > o1.name.toLowerCase()
+          ? -1
+          : 0
+      );
     });
   }
 }
