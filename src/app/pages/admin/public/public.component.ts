@@ -17,6 +17,11 @@ import {
 import { OccupationService } from 'src/app/services/occupation.service';
 import Swal from 'sweetalert2';
 
+export interface Project {
+  id?: number;
+  name: string;
+}
+
 @Component({
   selector: 'app-public',
   templateUrl: './public.component.html',
@@ -29,7 +34,7 @@ export class PublicComponent implements OnInit {
   public projects: any[] = [];
   public publicForm!: FormGroup;
   public filteredOptions?: Observable<any[]>;
-  public filteredOptionsProject?: Observable<any[]>;
+  public filteredOptionsProject: Observable<any[]>[] = [];
   public filterCC = new FormControl({ value: '', disabled: true });
   public filterProject = new FormControl();
   public scheduleArray: any[] = [];
@@ -55,11 +60,6 @@ export class PublicComponent implements OnInit {
       map((value) => this._filter(value || ''))
     );
 
-    this.filteredOptionsProject = this.filterProject.valueChanges.pipe(
-      startWith(''),
-      map((value) => this._filterProject(value || ''))
-    );
-
     this.getProjects();
     this.getOccupations();
   }
@@ -68,21 +68,45 @@ export class PublicComponent implements OnInit {
     return this.publicForm.controls;
   }
 
-  g() {
-    return (<FormArray>this.publicForm.get('schedule')).controls;
+  getControls() {
+    return (this.publicForm.get('schedule') as FormArray).controls;
+  }
+
+  displayFn(project?: Project): string | undefined {
+    return project ? project.name : undefined;
   }
 
   public addSchedule() {
-    (<FormArray>this.publicForm.get('schedule')).push(
-      new FormGroup({
-        projectId: new FormControl(null, Validators.required),
-        hour: new FormControl(null, Validators.required),
-      })
-    );
+    const controls = <FormArray>this.publicForm.controls['schedule'];
+    let formGroup = this.formBuilder.group({
+      projectId: ['', [Validators.required]],
+      hour: ['', [Validators.required]],
+    });
+    controls.push(formGroup);
+    // Build the account Auto Complete values
+    this.manageNameControl(controls.length - 1);
   }
 
   public deleteSchedule(i: number) {
-    (<FormArray>this.publicForm.get('schedule')).removeAt(i);
+    const controls = <FormArray>this.publicForm.controls['schedule'];
+    controls.removeAt(i);
+    // remove from filteredOptions too.
+    this.filteredOptionsProject.splice(i, 1);
+  }
+
+  manageNameControl(index: number) {
+    let arrayControl: any = this.publicForm.get('schedule') as FormArray;
+
+    this.filteredOptionsProject[index] = arrayControl
+      .at(index)
+      .get('projectId')
+      .valueChanges.pipe(
+        startWith(''),
+        map((value: any) => (value === '' ? value : value)),
+        map((name) =>
+          name ? this._filterProject(name) : this.projects.slice()
+        )
+      );
   }
 
   public filterChange(event: any) {
@@ -198,8 +222,24 @@ export class PublicComponent implements OnInit {
   private createForm() {
     this.publicForm = this.formBuilder.group({
       journey: ['', [Validators.required]],
-      schedule: this.formBuilder.array([]),
+      schedule: this.createFormSchedule(),
     });
+
+    this.manageNameControl(0);
+  }
+
+  private createFormSchedule() {
+    var formArray = this.formBuilder.array([]);
+
+    for (let i = 0; i < 1; i++) {
+      formArray.push(
+        this.formBuilder.group({
+          projectId: ['', [Validators.required]],
+          hour: ['', [Validators.required]],
+        })
+      );
+    }
+    return formArray;
   }
 
   private getEmployees(occupation: string) {

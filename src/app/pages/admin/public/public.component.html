@@ -11,15 +11,27 @@
         <mat-form-field appearance="outline">
           <mat-label>Seleccione área</mat-label>
           <mat-select (selectionChange)="filterChange($event)">
-            <mat-option *ngFor="let area of occupations" value="{{area?.name}}">{{area?.name | titlecase}}</mat-option>
+            <mat-option
+              *ngFor="let area of occupations"
+              value="{{ area?.name }}"
+              >{{ area?.name | titlecase }}</mat-option
+            >
           </mat-select>
         </mat-form-field>
         <label class="fw-bold">Operario</label>
         <mat-form-field appearance="outline">
-          <input matInput placeholder="Nombre Operario *" type="text" [formControl]="filterCC"
-            [matAutocomplete]="auto" />
+          <input
+            matInput
+            placeholder="Nombre Operario *"
+            type="text"
+            [formControl]="filterCC"
+            [matAutocomplete]="auto"
+          />
           <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-            <mat-option *ngFor="let option of filteredOptions | async" [value]="option?.fullname | titlecase">
+            <mat-option
+              *ngFor="let option of filteredOptions | async"
+              [value]="option?.fullname | titlecase"
+            >
               {{ option.identification }} | {{ option.fullname | titlecase }}
             </mat-option>
           </mat-autocomplete>
@@ -36,42 +48,70 @@
                 <mat-option value="N">Noche</mat-option>
                 <mat-option value="T2">Transversal</mat-option>
               </mat-select>
-              <mat-error *ngIf="f['journey'].errors && f['journey'].errors['required']">La jornada es requerida
+              <mat-error
+                *ngIf="f['journey'].errors && f['journey'].errors['required']"
+                >La jornada es requerida
               </mat-error>
             </mat-form-field>
           </div>
           <div class="col-xs-12 col-md-3 p-4">
-            <button mat-raised-button color="primary" type="button" (click)="addSchedule()">
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              (click)="addSchedule()"
+            >
               Agregar <i class="fa fa-plus"></i>
             </button>
           </div>
         </div>
 
         <div formArrayName="schedule">
-          <div *ngFor="let item of g(); let i = index">
+          <div *ngFor="let item of getControls(); let i = index">
             <div [formGroupName]="i">
               <div class="row">
                 <div class="col-xs-12 col-md-5">
                   <label class="fw-bold">Proyecto {{ i + 1 }}</label>
                   <mat-form-field appearance="outline">
-                    <input matInput placeholder="Proyecto *" type="text" [value]="filterProject" formControlName="projectId"
-                      [matAutocomplete]="auto" />
-                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" >
-                      <mat-option *ngFor="let option of filteredOptionsProject | async" [value]="option?.name | uppercase">
-                        {{ option.name | uppercase }}
+                    <input
+                      matInput
+                      placeholder="Proyecto *"
+                      type="text"
+                      formControlName="projectId"
+                      [matAutocomplete]="auto"
+                    />
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #auto="matAutocomplete"
+                    >
+                      <mat-option
+                        *ngFor="let option of filteredOptionsProject[i] | async"
+                        [value]="option?.name"
+                      >
+                        {{ option?.name }}
                       </mat-option>
                     </mat-autocomplete>
-                    <mat-error *ngIf="!filterProject.value">El proyecto es requerido</mat-error>
                   </mat-form-field>
                 </div>
                 <div class="col-xs-12 col-md-5">
                   <label class="fw-bold">Horas trabajadas</label>
                   <mat-form-field appearance="outline">
-                    <input matInput placeholder="Horas trabajadas *" formControlName="hour" type="number" />
+                    <input
+                      matInput
+                      placeholder="Horas trabajadas *"
+                      formControlName="hour"
+                      type="number"
+                    />
                   </mat-form-field>
                 </div>
                 <div class="col-xs-12 col-md-2 p-4">
-                  <button mat-raised-button color="warn" type="button" *ngIf="i > 0" (click)="deleteSchedule(i)">
+                  <button
+                    mat-raised-button
+                    color="warn"
+                    type="button"
+                    *ngIf="i > 0"
+                    (click)="deleteSchedule(i)"
+                  >
                     <i class="fa fa-minus"></i>
                   </button>
                 </div>
@@ -80,7 +120,12 @@
           </div>
         </div>
 
-        <button mat-raised-button color="primary" [disabled]="filterCC.value === ''" (click)="onSave()">
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="filterCC.value === ''"
+          (click)="onSave()"
+        >
           Guardar
         </button>
       </div>
