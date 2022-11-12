@@ -192,7 +192,7 @@ export class PublicComponent implements OnInit {
 
     if (fullname[0]?.id && typeof fullname[0]?.id !== undefined) {
       this.scheduleService.getByEmployee(fullname[0]?.id).subscribe((res) => {
-        if (res.code > 1000) {
+        if (res.data > 1) {
           Swal.fire({
             title: `Operación errónea`,
             text: res.message,
