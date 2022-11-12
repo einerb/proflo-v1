@@ -214,10 +214,7 @@ export class PublicComponent implements OnInit {
                     x.name.toLowerCase() === element.projectId.toLowerCase()
                 );
 
-                if (
-                  this.projectsId.length > 0 &&
-                  matchId.every((x: any) => x === true)
-                ) {
+                if (matchId.every((x: any) => x === true)) {
                   const data = {
                     hour: element.hour,
                     projectId: projectId[0]?.id,
