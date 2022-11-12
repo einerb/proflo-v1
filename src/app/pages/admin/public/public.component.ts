@@ -32,6 +32,7 @@ export class PublicComponent implements OnInit {
   public employees: any[] = [];
   public occupations: any[] = [];
   public projects: any[] = [];
+  public projectsId: any[] = [];
   public publicForm!: FormGroup;
   public filteredOptions?: Observable<any[]>;
   public filteredOptionsProject: Observable<any[]>[] = [];
@@ -170,53 +171,99 @@ export class PublicComponent implements OnInit {
       (x) => x.fullname.toLowerCase() === this.filterCC.value.toLowerCase()
     );
 
-    let totalHours = 0;
-    this.publicForm.value?.schedule.forEach((element: any) => {
-      totalHours += element.hour;
-    });
+    if (fullname[0]?.id && typeof fullname[0]?.id !== undefined) {
+      this.scheduleService.getByEmployee(fullname[0]?.id).subscribe((res) => {
 
-    if (totalHours >= 7.5 && totalHours <= 8.5) {
-      this.publicForm.value?.schedule.forEach((element: any) => {
-        let projectId = this.projects.filter(
-          (x) => x.name.toLowerCase() === element.projectId.toLowerCase()
-        );
+        if (res.code > 1000) {
+          Swal.fire({
+            title: `Operación errónea`,
+            text: res.message,
+            icon: 'error',
+            confirmButtonText: 'Ok',
+            allowOutsideClick: false,
+          });
+        } else {
+          let totalHours = 0;
+          this.publicForm.value?.schedule.forEach((element: any) => {
+            totalHours += element.hour;
+          });
 
-        const data = {
-          hour: element.hour,
-          projectId: projectId[0]?.id,
-          journey: this.publicForm.get('journey')!.value,
-          identification: fullname[0]?.identification
-            ? fullname[0]?.identification
-            : null,
-        };
+          if (totalHours >= 7.5 && totalHours <= 8.5) {
+            this.publicForm.value?.schedule.forEach((element: any, index: number) => {
+              let projectId = this.projects.filter(
+                (x) => x.name.toLowerCase() === element.projectId.toLowerCase()
+              );
 
-        this.scheduleService.create(data).subscribe((res) => {
-          if (res.code > 1000) {
-            Swal.fire({
-              title: `Operación exitosa`,
-              text: res.message,
-              icon: 'success',
-              confirmButtonText: 'Ok',
-              allowOutsideClick: false,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.reload();
+              /* Falta mejorar */
+              let matchId: any[] = []
+              projectId.forEach((element: any) => {
+                if (element.id === this.projectsId[index])
+                  matchId.push(true);
+              });
+
+              if (this.projectsId.length > 0 && matchId.every((x: any) => x === true)) {
+                const data = {
+                  hour: element.hour,
+                  projectId: projectId[0]?.id,
+                  journey: this.publicForm.get('journey')!.value,
+                  identification: fullname[0]?.identification
+                    ? fullname[0]?.identification
+                    : null,
+                };
+
+                /* this.scheduleService.create(data).subscribe((res) => {
+                  if (res.code > 1000) {
+                    Swal.fire({
+                      title: `Operación exitosa`,
+                      text: res.message,
+                      icon: 'success',
+                      confirmButtonText: 'Ok',
+                      allowOutsideClick: false,
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        window.location.reload();
+                      }
+                    });
+                  } else {
+                    this.globalService.onMessage(res.code, res.error);
+                  }
+                }); */
+              } else {
+                Swal.fire({
+                  title: `Operación errónea`,
+                  text: 'Al parecer un(os) de los proyectos no existe, por favor verificar',
+                  icon: 'error',
+                  confirmButtonText: 'Ok',
+                  allowOutsideClick: false,
+                });
               }
             });
+
           } else {
-            this.globalService.onMessage(res.code, res.error);
+            Swal.fire({
+              title: `Operación errónea`,
+              text: 'El registro total de horas no se encuentra en el rango permitido. Rango permitido de 7.5 a 8.5 horas!',
+              icon: 'error',
+              confirmButtonText: 'Ok',
+              allowOutsideClick: false,
+            });
           }
-        });
+        }
+
+
+
       });
     } else {
       Swal.fire({
         title: `Operación errónea`,
-        text: 'El registro total de horas no se encuentra en el rango permitido. Rango permitido de 7.5 a 8.5 horas!',
+        text: 'El empleado no existe!',
         icon: 'error',
         confirmButtonText: 'Ok',
         allowOutsideClick: false,
       });
     }
+
+
   }
 
   private createForm() {
@@ -248,8 +295,8 @@ export class PublicComponent implements OnInit {
         e2.fullname.toLowerCase() < e1.fullname.toLowerCase()
           ? 1
           : e2.fullname.toLowerCase() > e1.fullname.toLowerCase()
-          ? -1
-          : 0
+            ? -1
+            : 0
       );
     });
   }
@@ -257,6 +304,10 @@ export class PublicComponent implements OnInit {
   private getProjects() {
     this.projectService.getAll().subscribe((res) => {
       this.projects = res.data;
+
+      this.projects.filter((x: any) => {
+        this.projectsId.push(x.id)
+      });
     });
   }
 
@@ -266,8 +317,8 @@ export class PublicComponent implements OnInit {
         o2.name.toLowerCase() < o1.name.toLowerCase()
           ? 1
           : o2.name.toLowerCase() > o1.name.toLowerCase()
-          ? -1
-          : 0
+            ? -1
+            : 0
       );
     });
   }

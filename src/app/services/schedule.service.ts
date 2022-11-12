@@ -8,7 +8,7 @@ import { GlobalService } from './global.service';
   providedIn: 'root',
 })
 export class ScheduleService {
-  constructor(private readonly globalService: GlobalService) {}
+  constructor(private readonly globalService: GlobalService) { }
 
   public getAll(
     pageNumber: number,
@@ -26,6 +26,20 @@ export class ScheduleService {
           end,
           journey
         )
+      )
+      .pipe(
+        map((res) => {
+          return res;
+        })
+      );
+  }
+
+  public getByEmployee(
+    id: number
+  ): Observable<any> {
+    return this.globalService
+      .get(
+        Api.Endpoints.SCHEDULE.BASE + '/' + id
       )
       .pipe(
         map((res) => {
