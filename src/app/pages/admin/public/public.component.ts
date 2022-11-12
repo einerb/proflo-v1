@@ -167,13 +167,31 @@ export class PublicComponent implements OnInit {
       return;
     }
 
+    let matchId: any[] = [];
+
+    this.publicForm.value?.schedule.forEach((element: any, index: number) => {
+      let projectId = this.projects.filter(
+        (x) => x.name.toLowerCase() === element.projectId.toLowerCase()
+      );
+
+      let extractProject = { ...projectId };
+
+      if (
+        extractProject[0]?.id &&
+        extractProject[0]?.id === this.projectsId[index]
+      ) {
+        matchId.push(true);
+      } else {
+        matchId.push(false);
+      }
+    });
+
     let fullname = this.employees.filter(
       (x) => x.fullname.toLowerCase() === this.filterCC.value.toLowerCase()
     );
 
     if (fullname[0]?.id && typeof fullname[0]?.id !== undefined) {
       this.scheduleService.getByEmployee(fullname[0]?.id).subscribe((res) => {
-
         if (res.code > 1000) {
           Swal.fire({
             title: `Operación errónea`,
@@ -189,56 +207,54 @@ export class PublicComponent implements OnInit {
           });
 
           if (totalHours >= 7.5 && totalHours <= 8.5) {
-            this.publicForm.value?.schedule.forEach((element: any, index: number) => {
-              let projectId = this.projects.filter(
-                (x) => x.name.toLowerCase() === element.projectId.toLowerCase()
-              );
+            this.publicForm.value?.schedule.forEach(
+              (element: any, index: number) => {
+                let projectId = this.projects.filter(
+                  (x) =>
+                    x.name.toLowerCase() === element.projectId.toLowerCase()
+                );
 
-              /* Falta mejorar */
-              let matchId: any[] = []
-              projectId.forEach((element: any) => {
-                if (element.id === this.projectsId[index])
-                  matchId.push(true);
-              });
+                if (
+                  this.projectsId.length > 0 &&
+                  matchId.every((x: any) => x === true)
+                ) {
+                  const data = {
+                    hour: element.hour,
+                    projectId: projectId[0]?.id,
+                    journey: this.publicForm.get('journey')!.value,
+                    identification: fullname[0]?.identification
+                      ? fullname[0]?.identification
+                      : null,
+                  };
 
-              if (this.projectsId.length > 0 && matchId.every((x: any) => x === true)) {
-                const data = {
-                  hour: element.hour,
-                  projectId: projectId[0]?.id,
-                  journey: this.publicForm.get('journey')!.value,
-                  identification: fullname[0]?.identification
-                    ? fullname[0]?.identification
-                    : null,
-                };
-
-                /* this.scheduleService.create(data).subscribe((res) => {
-                  if (res.code > 1000) {
-                    Swal.fire({
-                      title: `Operación exitosa`,
-                      text: res.message,
-                      icon: 'success',
-                      confirmButtonText: 'Ok',
-                      allowOutsideClick: false,
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        window.location.reload();
-                      }
-                    });
-                  } else {
-                    this.globalService.onMessage(res.code, res.error);
-                  }
-                }); */
-              } else {
-                Swal.fire({
-                  title: `Operación errónea`,
-                  text: 'Al parecer un(os) de los proyectos no existe, por favor verificar',
-                  icon: 'error',
-                  confirmButtonText: 'Ok',
-                  allowOutsideClick: false,
-                });
+                  this.scheduleService.create(data).subscribe((res) => {
+                    if (res.code > 1000) {
+                      Swal.fire({
+                        title: `Operación exitosa`,
+                        text: res.message,
+                        icon: 'success',
+                        confirmButtonText: 'Ok',
+                        allowOutsideClick: false,
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          window.location.reload();
+                        }
+                      });
+                    } else {
+                      this.globalService.onMessage(res.code, res.error);
+                    }
+                  });
+                } else {
+                  Swal.fire({
+                    title: `Operación errónea`,
+                    text: 'Al parecer un(os) de los proyectos no existe, por favor verificar',
+                    icon: 'error',
+                    confirmButtonText: 'Ok',
+                    allowOutsideClick: false,
+                  });
+                }
               }
-            });
-
+            );
           } else {
             Swal.fire({
               title: `Operación errónea`,
@@ -249,9 +265,6 @@ export class PublicComponent implements OnInit {
             });
           }
         }
-
-
-
       });
     } else {
       Swal.fire({
@@ -262,8 +275,6 @@ export class PublicComponent implements OnInit {
         allowOutsideClick: false,
       });
     }
-
-
   }
 
   private createForm() {
@@ -295,8 +306,8 @@ export class PublicComponent implements OnInit {
         e2.fullname.toLowerCase() < e1.fullname.toLowerCase()
           ? 1
           : e2.fullname.toLowerCase() > e1.fullname.toLowerCase()
-            ? -1
-            : 0
+          ? -1
+          : 0
       );
     });
   }
@@ -306,7 +317,7 @@ export class PublicComponent implements OnInit {
       this.projects = res.data;
 
       this.projects.filter((x: any) => {
-        this.projectsId.push(x.id)
+        this.projectsId.push(x.id);
       });
     });
   }
@@ -317,8 +328,8 @@ export class PublicComponent implements OnInit {
         o2.name.toLowerCase() < o1.name.toLowerCase()
           ? 1
           : o2.name.toLowerCase() > o1.name.toLowerCase()
-            ? -1
-            : 0
+          ? -1
+          : 0
       );
     });
   }
